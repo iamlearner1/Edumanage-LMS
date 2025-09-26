@@ -6,7 +6,7 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 // Import models
-const User = require('../models/User');
+const User = require('../features/users/User');
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI, {
