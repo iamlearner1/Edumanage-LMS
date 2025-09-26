@@ -9,8 +9,8 @@ dotenv.config();
 // Import routes
 const authRoutes = require('./features/auth/auth.routes');
 const userRoutes = require('./features/users/users.routes');
-const courseRoutes = require('./features/courses/courses.routes');
-const enrollmentRoutes = require('./features/enrollments/enrollments.routes');
+const courseRoutes = require('./features/course/course.routes');
+const enrollmentRoutes = require('./features/enrollment/enrollment.routes');
 const assignmentRoutes = require('./features/assignments/assignments.routes');
 const submissionRoutes = require('./features/submissions/submissions.routes');
 const attendanceRoutes = require('./features/attendance/attendance.routes');

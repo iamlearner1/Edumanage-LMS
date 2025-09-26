@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Grade = require('./Grade');
-const Course = require('../courses/Course');
+const Course = require('../course/course.model');
 const User = require('../users/User');
 const Notification = require('../notifications/Notification');
 const { auth, authorize, checkApproval } = require('../../middleware/auth');

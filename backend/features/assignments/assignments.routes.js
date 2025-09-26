@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Assignment = require('./Assignment');
-const Course = require('../courses/Course');
+const Course = require('../course/course.model');
 const { auth, authorize, checkApproval } = require('../../middleware/auth');
 
 const router = express.Router();
@@ -15,7 +15,7 @@ router.get('/', auth, async (req, res) => {
     
     if (req.user.role === 'student') {
       // Get assignments from enrolled courses
-      const Enrollment = require('../enrollments/Enrollment'); // Fixed: Move require inside function
+      const Enrollment = require('../enrollment/Enrollment'); // Fixed: Move require inside function
       const enrollments = await Enrollment.find({ 
         student: req.user._id,
         status: 'enrolled'
@@ -119,7 +119,7 @@ router.post('/', [
 
     // If assignment is published, notify enrolled students
     if (isPublished) {
-      const Enrollment = require('../enrollments/Enrollment');
+      const Enrollment = require('../enrollment/Enrollment');
       const Notification = require('../notifications/Notification');
       
       const enrolledStudents = await Enrollment.find({
