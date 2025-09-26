@@ -1,8 +1,8 @@
 const express = require('express');
 const { body, validationResult, query } = require('express-validator');
-const Course = require('../models/Course');
-const Enrollment = require('../models/Enrollment');
-const { auth, authorize, checkApproval } = require('../middleware/auth');
+const Course = require('./Course');
+const Enrollment = require('../enrollments/Enrollment');
+const { auth, authorize, checkApproval } = require('../../middleware/auth');
 
 const router = express.Router();
 
@@ -379,9 +379,9 @@ router.get('/pending', [auth, authorize('admin')], async (req, res) => {
 router.get('/:id/performance', [auth, authorize(['instructor', 'admin'])], async (req, res) => {
   try {
     const courseId = req.params.id;
-    const Assignment = require('../models/Assignment');
-    const Submission = require('../models/Submission');
-    const Grade = require('../models/Grade');
+    const Assignment = require('../assignments/Assignment');
+    const Submission = require('../submissions/Submission');
+    const Grade = require('../grades/Grade');
     
     // Verify course exists and user has access
     const course = await Course.findById(courseId);

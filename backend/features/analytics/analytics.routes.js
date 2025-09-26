@@ -1,9 +1,9 @@
 const express = require('express');
-const User = require('../models/User');
-const Course = require('../models/Course');
-const Enrollment = require('../models/Enrollment');
-const Assignment = require('../models/Assignment');
-const { auth, authorize } = require('../middleware/auth');
+const User = require('../users/User');
+const Course = require('../courses/Course');
+const Enrollment = require('../enrollments/Enrollment');
+const Assignment = require('../assignments/Assignment');
+const { auth, authorize } = require('../../middleware/auth');
 
 const router = express.Router();
 
@@ -89,7 +89,7 @@ router.get('/dashboard', [auth, authorize('admin', 'instructor')], async (req, r
 // @access  Public
 router.get('/public', async (req, res) => {
   try {
-    const Grade = require('../models/Grade');
+    const Grade = require('../grades/Grade');
     
     // Get basic platform stats
     const totalStudents = await User.countDocuments({ role: 'student', isActive: true });

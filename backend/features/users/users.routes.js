@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const User = require('../models/User');
-const { auth, authorize } = require('../middleware/auth');
+const User = require('./User');
+const { auth, authorize } = require('../../middleware/auth');
 
 const router = express.Router();
 
@@ -70,7 +70,7 @@ router.put('/:id/approve', [auth, authorize('admin')], async (req, res) => {
     }
 
     // Create approval notification for the user
-    const Notification = require('../models/Notification');
+    const Notification = require('../notifications/Notification');
     await Notification.createNotification({
       recipient: user._id,
       title: 'Account Approved',
@@ -187,7 +187,7 @@ router.put('/:id/verify-document/:documentId', [auth, authorize('admin')], async
       await user.save();
 
       // Notify instructor of approval
-      const Notification = require('../models/Notification');
+      const Notification = require('../notifications/Notification');
       await Notification.createNotification({
         recipient: user._id,
         title: 'Documents Approved',
@@ -208,7 +208,7 @@ router.put('/:id/verify-document/:documentId', [auth, authorize('admin')], async
       await user.save();
 
       // Notify instructor of rejection
-      const Notification = require('../models/Notification');
+      const Notification = require('../notifications/Notification');
       await Notification.createNotification({
         recipient: user._id,
         title: 'Document Rejected',

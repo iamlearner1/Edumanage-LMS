@@ -1,10 +1,10 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-const Grade = require('../models/Grade');
-const Course = require('../models/Course');
-const User = require('../models/User');
-const Notification = require('../models/Notification');
-const { auth, authorize, checkApproval } = require('../middleware/auth');
+const Grade = require('./Grade');
+const Course = require('../courses/Course');
+const User = require('../users/User');
+const Notification = require('../notifications/Notification');
+const { auth, authorize, checkApproval } = require('../../middleware/auth');
 
 const router = express.Router();
 
