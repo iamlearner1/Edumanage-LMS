@@ -1,7 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
-const User = require('../users/User');
+const User = require('../user/user.model');
 const { auth, authorize } = require('../../middleware/auth');
 const { uploadDocuments } = require('../../middleware/upload');
 
@@ -79,7 +79,7 @@ router.post('/register', [
 
     // If instructor, create notification for admins
     if (role === 'instructor') {
-      const Notification = require('../notifications/Notification');
+      const Notification = require('../notification/notification.model');
       await Notification.notifyAdmins(
         'New Instructor Registration',
         `${firstName} ${lastName} (${email}) has registered as an instructor and requires document verification.`,
@@ -303,7 +303,7 @@ router.post('/upload-documents', [auth, authorize('instructor')], (req, res) => 
       await user.save();
 
       // Notify admins about document upload
-      const Notification = require('../notifications/Notification');
+      const Notification = require('../notification/notification.model');
       await Notification.notifyAdmins(
         'Instructor Documents Uploaded',
         `${user.firstName} ${user.lastName} has uploaded ${files.length} document(s) for verification.`,

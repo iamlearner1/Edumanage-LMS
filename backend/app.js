@@ -6,9 +6,11 @@ const dotenv = require('dotenv');
 // Load environment variables
 dotenv.config();
 
+const uploads = require('./middleware/upload'); // Middleware for handling file uploads
+
 // Import routes
 const authRoutes = require('./features/auth/auth.routes');
-const userRoutes = require('./features/users/users.routes');
+const userRoutes = require('./features/user/users.routes');
 const courseRoutes = require('./features/courses/courses.routes');
 const enrollmentRoutes = require('./features/enrollments/enrollments.routes');
 const assignmentRoutes = require('./features/assignments/assignments.routes');
@@ -16,9 +18,9 @@ const submissionRoutes = require('./features/submissions/submissions.routes');
 const attendanceRoutes = require('./features/attendance/attendance.routes');
 const gradeRoutes = require('./features/grades/grades.routes');
 const messageRoutes = require('./features/messages/messages.routes');
-const notificationRoutes = require('./features/notifications/notifications.routes');
+const notificationRoutes = require('./features/notification/notification.routes');
 const analyticsRoutes = require('./features/analytics/analytics.routes');
-const uploadRoutes = require('./features/uploads/upload.routes');
+// const uploadRoutes = require('./features/uploads/upload.routes');
 
 const app = express();
 
@@ -45,7 +47,7 @@ app.use('/api/grades', gradeRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/analytics', analyticsRoutes);
-app.use('/api/upload', uploadRoutes);
+// app.use('/api/upload', uploadRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
