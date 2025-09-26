@@ -120,7 +120,7 @@ router.post('/', [
     // If assignment is published, notify enrolled students
     if (isPublished) {
       const Enrollment = require('../enrollments/Enrollment');
-      const Notification = require('../notifications/Notification');
+      const Notification = require('../notification/notification.model');
       
       const enrolledStudents = await Enrollment.find({
         course: courseId,
