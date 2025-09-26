@@ -3,7 +3,7 @@ const User = require('../users/User');
 const Course = require('../courses/Course');
 const Enrollment = require('../enrollments/Enrollment');
 const Assignment = require('../assignments/Assignment');
-const { auth, authorize } = require('../../middleware/auth');
+const { auth, authorize } = require('../../middleware/authMiddleware');
 
 const router = express.Router();
 

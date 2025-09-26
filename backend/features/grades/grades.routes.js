@@ -4,7 +4,7 @@ const Grade = require('./Grade');
 const Course = require('../courses/Course');
 const User = require('../users/User');
 const Notification = require('../notifications/Notification');
-const { auth, authorize, checkApproval } = require('../../middleware/auth');
+const { auth, authorize, checkApproval } = require('../../middleware/authMiddleware');
 
 const router = express.Router();
 

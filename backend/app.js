@@ -18,7 +18,7 @@ const gradeRoutes = require('./features/grades/grades.routes');
 const messageRoutes = require('./features/messages/messages.routes');
 const notificationRoutes = require('./features/notifications/notifications.routes');
 const analyticsRoutes = require('./features/analytics/analytics.routes');
-const uploadRoutes = require('./features/uploads/upload.routes');
+const uploadRoutes = require('./features/resources/resources.routes');
 
 const app = express();
 

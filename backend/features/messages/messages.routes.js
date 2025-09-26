@@ -2,7 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Message = require('./Message');
 const User = require('../users/User');
-const { auth } = require('../../middleware/auth');
+const { auth } = require('../../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ const router = express.Router();
 // @desc    Get user's inbox
 // @access  Private
 router.get('/inbox', auth, async (req, res) => {
-  try {
+  try {w
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
