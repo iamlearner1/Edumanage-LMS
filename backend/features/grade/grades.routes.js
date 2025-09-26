@@ -2,9 +2,15 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Grade = require('./Grade');
 const Course = require('../courses/Course');
+<<<<<<< HEAD
 const User = require('../user/user.model');
 const Notification = require('../notification/notification.model');
 const { auth, authorize, checkApproval } = require('../../middleware/auth');
+=======
+const User = require('../users/User');
+const Notification = require('../notifications/Notification');
+const { auth, authorize, checkApproval } = require('../../middleware/authMiddleware');
+>>>>>>> dev
 
 const router = express.Router();
 
