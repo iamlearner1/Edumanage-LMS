@@ -47,7 +47,7 @@ app.use('/api/grades', gradeRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/analytics', analyticsRoutes);
-// app.use('/api/upload', uploadRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

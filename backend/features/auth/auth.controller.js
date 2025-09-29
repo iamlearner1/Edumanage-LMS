@@ -2,11 +2,7 @@ const authService = require('./auth.service');
 const { validationResult } = require('express-validator');
 const validateRequest = require('../../middleware/validateRequest');
 
-<<<<<<< HEAD
-exports.register = async (req, res) => {
-=======
 exports.register = async (req, res, next) => {
->>>>>>> 3f2c9eacd3e19d789c35fd663f3d7ce9bcd03437
   try {
     const { user, token, message, requiresApproval, needsDocuments } =
       await authService.registerUser(req.body);
@@ -19,12 +15,7 @@ exports.register = async (req, res, next) => {
       needsDocuments,
     });
   } catch (error) {
-<<<<<<< HEAD
-    console.error('Registration error:', error);
-    res.status(500).json({ message: 'Server error during registration' });
-=======
     next(error);
->>>>>>> 3f2c9eacd3e19d789c35fd663f3d7ce9bcd03437
   }
 };
 

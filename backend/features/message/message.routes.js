@@ -11,7 +11,7 @@ const router = express.Router();
 // @desc    Get user's inbox
 // @access  Private
 router.get('/inbox', auth, async (req, res) => {
-  try {w
+  try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;

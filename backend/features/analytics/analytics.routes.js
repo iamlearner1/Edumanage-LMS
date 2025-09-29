@@ -1,15 +1,8 @@
 const express = require('express');
-<<<<<<< HEAD
-const User = require('../user/user.model');
-const Course = require('../courses/Course');
-const Enrollment = require('../enrollments/Enrollment');
-const Assignment = require('../assignments/Assignment');
-=======
 const User = require('../user/User');
 const Course = require('../course/Course');
 const Enrollment = require('../enrollment/Enrollment');
 const Assignment = require('../assignment/Assignment');
->>>>>>> 3f2c9eacd3e19d789c35fd663f3d7ce9bcd03437
 const { auth, authorize } = require('../../middleware/authMiddleware');
 
 const router = express.Router();

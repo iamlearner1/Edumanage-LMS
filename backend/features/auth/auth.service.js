@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-const User = require('../users/User');
-const Notification = require('../notifications/Notification');
-=======
 const User = require('../user/User');
 const Notification = require('../notification/Notification');
->>>>>>> 3f2c9eacd3e19d789c35fd663f3d7ce9bcd03437
 const generateToken = require('../../utils/generateToken');
 
 exports.registerUser = async ({
