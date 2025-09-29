@@ -1,6 +1,6 @@
 // services/courseService.js
-const Course = require('./course.model');
-const Enrollment = require('../enrollment/enrollment.model');
+const Course = require('./Course');
+const Enrollment = require('../enrollment/Enrollment');
 
 exports.getCourses = async (query) => {
   const page = parseInt(query.page) || 1;

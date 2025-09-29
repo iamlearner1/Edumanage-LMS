@@ -1,6 +1,6 @@
 // services/enrollmentService.js
-const Enrollment = require('./enrollment.model');
-const Course = require('../course/course.model');
+const Enrollment = require('./Enrollment');
+const Course = require('../course/Course');
 
 exports.enrollStudent = async (user, courseId) => {
   const course = await Course.findById(courseId);
