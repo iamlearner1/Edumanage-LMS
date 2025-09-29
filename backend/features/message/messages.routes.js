@@ -1,8 +1,13 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Message = require('./Message');
+<<<<<<< HEAD
 const User = require('../user/user.model');
 const { auth } = require('../../middleware/auth');
+=======
+const User = require('../users/User');
+const { auth } = require('../../middleware/authMiddleware');
+>>>>>>> dev
 
 const router = express.Router();
 
@@ -10,7 +15,7 @@ const router = express.Router();
 // @desc    Get user's inbox
 // @access  Private
 router.get('/inbox', auth, async (req, res) => {
-  try {
+  try {w
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
     const skip = (page - 1) * limit;
