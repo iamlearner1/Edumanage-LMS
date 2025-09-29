@@ -1,7 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Submission = require('./Submission');
-const Assignment = require('../assignments/Assignment');
+const Assignment = require('../assignment/Assignment');
 const { auth, authorize } = require('../../middleware/authMiddleware');
 
 const router = express.Router();

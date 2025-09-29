@@ -1,8 +1,13 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Attendance = require('./Attendance');
+<<<<<<< HEAD
 const Course = require('../courses/Course');
 const Enrollment = require('../enrollments/Enrollment');
+=======
+const Course = require('../course/Course');
+const Enrollment = require('../enrollment/Enrollment');
+>>>>>>> 3f2c9eacd3e19d789c35fd663f3d7ce9bcd03437
 const { auth, authorize, checkApproval } = require('../../middleware/authMiddleware');
 
 const router = express.Router();
