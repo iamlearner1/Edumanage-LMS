@@ -7,6 +7,7 @@ import {
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import { formatDateISO } from '../../utils/dateUtils';
+import axios from 'axios';
 
 const Profile = () => {
   const { user } = useAuth();
@@ -54,7 +55,13 @@ const Profile = () => {
     setLoading(true);
     
     try {
-      // This would normally call an API to update profile
+      await axios.put('http://localhost:5000/api/auth/profile', {
+        firstName: profileForm.firstName,
+        lastName: profileForm.lastName,
+        phone: profileForm.phone,
+        dateOfBirth: profileForm.dateOfBirth,
+        address: profileForm.address
+      });
       toast.success('Profile updated successfully!');
     } catch (error) {
       toast.error('Failed to update profile');
@@ -74,15 +81,29 @@ const Profile = () => {
     setLoading(true);
     
     try {
-      // This would normally call an API to change password
-      toast.success('Password changed successfully!');
+      if(passwordForm.newPassword === passwordForm.currentPassword ){
+        toast.error('New password must be different from current password');
+        setLoading(false);
+        return;
+      }
+      if(passwordForm.newPassword !== passwordForm.confirmPassword ){
+        toast.error('New password and confirm password must be same');
+        setLoading(false);
+        return;
+      } 
+      const response = await axios.put('http://localhost:5000/api/auth/change-password', {
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword
+      });
+
+      toast.success(response?.message || 'Password changed successfully!');
       setPasswordForm({
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
       });
     } catch (error) {
-      toast.error('Failed to change password');
+      toast.error(error.response?.data?.error , 'Failed to change password');
     } finally {
       setLoading(false);
     }
