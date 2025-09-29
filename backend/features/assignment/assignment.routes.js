@@ -1,8 +1,8 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Assignment = require('./Assignment');
-const Course = require('../course/course.model');
-const { auth, authorize, checkApproval } = require('../../middleware/auth');
+const Course = require('../course/Course');
+const { auth, authorize, checkApproval } = require('../../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -119,8 +119,8 @@ router.post('/', [
 
     // If assignment is published, notify enrolled students
     if (isPublished) {
-      const Enrollment = require('../enrollment/Enrollment');
-      const Notification = require('../notifications/Notification');
+      const Enrollment = require('../enrollments/Enrollment');
+      const Notification = require('../notification/notification.model');
       
       const enrolledStudents = await Enrollment.find({
         course: courseId,
