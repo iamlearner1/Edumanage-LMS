@@ -10,17 +10,17 @@ const uploads = require('./middleware/upload'); // Middleware for handling file 
 
 // Import routes
 const authRoutes = require('./features/auth/auth.routes');
-const userRoutes = require('./features/user/users.routes');
-const courseRoutes = require('./features/courses/courses.routes');
-const enrollmentRoutes = require('./features/enrollments/enrollments.routes');
-const assignmentRoutes = require('./features/assignments/assignments.routes');
-const submissionRoutes = require('./features/submissions/submissions.routes');
+const userRoutes = require('./features/user/user.routes');
+const courseRoutes = require('./features/course/course.routes');
+const enrollmentRoutes = require('./features/enrollment/enrollment.routes');
+const assignmentRoutes = require('./features/assignment/assignment.routes');
+const submissionRoutes = require('./features/submission/submission.routes');
 const attendanceRoutes = require('./features/attendance/attendance.routes');
-const gradeRoutes = require('./features/grades/grades.routes');
-const messageRoutes = require('./features/messages/messages.routes');
+const gradeRoutes = require('./features/grade/grade.routes');
+const messageRoutes = require('./features/message/message.routes');
 const notificationRoutes = require('./features/notification/notification.routes');
 const analyticsRoutes = require('./features/analytics/analytics.routes');
-// const uploadRoutes = require('./features/uploads/upload.routes');
+const uploadRoutes = require('./features/resource/resource.routes');
 
 const app = express();
 

@@ -1,8 +1,8 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Assignment = require('./Assignment');
-const Course = require('../courses/Course');
-const { auth, authorize, checkApproval } = require('../../middleware/auth');
+const Course = require('../course/Course');
+const { auth, authorize, checkApproval } = require('../../middleware/authMiddleware');
 
 const router = express.Router();
 
