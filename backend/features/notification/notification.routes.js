@@ -1,5 +1,5 @@
 const express = require('express');
-const { auth } = require('../../middleware/auth');
+const { auth } = require('../../middleware/authMiddleware');
 const { validationResult } = require('express-validator');
 const NotificationController = require('./notification.controller');
 const {

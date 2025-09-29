@@ -1,21 +1,10 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
-<<<<<<<< HEAD:backend/features/enrollment/enrollments.routes.js
-const Enrollment = require('../enrollments/Enrollment');
-const Course = require('../courses/Course');
-<<<<<<< HEAD
-const User = require('../user/user.model');
-const { auth, authorize } = require('../../middleware/auth');
-=======
-const User = require('../users/User');
-const { auth, authorize } = require('../../middleware/authMiddleware');
->>>>>>> dev
-========
+
 const Enrollment = require('./Enrollment');
 const Course = require('../course/Course');
 const User = require('../user/User');
 const { auth, authorize } = require('../../middleware/authMiddleware');
->>>>>>>> 3f2c9eacd3e19d789c35fd663f3d7ce9bcd03437:backend/features/enrollment/enrollment.routes.js
 
 const router = express.Router();
 

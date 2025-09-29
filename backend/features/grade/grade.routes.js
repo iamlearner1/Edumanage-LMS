@@ -1,23 +1,10 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Grade = require('./Grade');
-<<<<<<<< HEAD:backend/features/grade/grades.routes.js
-const Course = require('../courses/Course');
-<<<<<<< HEAD
-const User = require('../user/user.model');
-const Notification = require('../notification/notification.model');
-const { auth, authorize, checkApproval } = require('../../middleware/auth');
-=======
-const User = require('../users/User');
-const Notification = require('../notifications/Notification');
-const { auth, authorize, checkApproval } = require('../../middleware/authMiddleware');
->>>>>>> dev
-========
 const Course = require('../course/Course');
 const User = require('../user/User');
 const Notification = require('../notification/Notification');
 const { auth, authorize, checkApproval } = require('../../middleware/authMiddleware');
->>>>>>>> 3f2c9eacd3e19d789c35fd663f3d7ce9bcd03437:backend/features/grade/grade.routes.js
 
 const router = express.Router();
 

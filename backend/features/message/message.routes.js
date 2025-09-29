@@ -1,18 +1,9 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Message = require('./Message');
-<<<<<<<< HEAD:backend/features/message/messages.routes.js
-<<<<<<< HEAD
-const User = require('../user/user.model');
-const { auth } = require('../../middleware/auth');
-=======
-const User = require('../users/User');
-const { auth } = require('../../middleware/authMiddleware');
->>>>>>> dev
-========
+
 const User = require('../user/User');
 const { auth } = require('../../middleware/authMiddleware');
->>>>>>>> 3f2c9eacd3e19d789c35fd663f3d7ce9bcd03437:backend/features/message/message.routes.js
 
 const router = express.Router();
 

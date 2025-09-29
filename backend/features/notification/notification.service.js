@@ -1,5 +1,5 @@
-const Notification = require('./notification.model');
-const User = require('../user/user.model'); // adjust path if different
+const Notification = require('./Notification');
+const User = require('../user/User');
 
 class NotificationService {
   static async createNotification(data) {
