@@ -1,4 +1,3 @@
-// services/courseService.js
 const Course = require('./Course');
 const Enrollment = require('../enrollment/Enrollment');
 
@@ -20,7 +19,6 @@ exports.getCourses = async (query) => {
 
   const courses = await Course.find(filter)
     .populate('instructor', 'firstName lastName email')
-    .select('-materials')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(limit);
@@ -70,66 +68,6 @@ exports.getInstructorCourses = async (instructorId) => {
     .sort({ createdAt: -1 });
 };
 
-exports.addMaterial = async (user, courseId, body) => {
-  const course = await Course.findById(courseId);
-  if (!course) throw new Error('Course not found');
-
-  if (user.role !== 'admin' && course.instructor.toString() !== user.id) {
-    throw new Error('Not authorized to add materials to this course');
-  }
-
-  const material = {
-    title: body.title,
-    type: body.type,
-    url: body.url,
-    filename: body.filename,
-    description: body.description,
-    isFree: body.isFree ?? false,
-    uploadDate: new Date()
-  };
-
-  course.materials.push(material);
-  await course.save();
-
-  return course.materials[course.materials.length - 1];
-};
-
-exports.updateMaterial = async (user, courseId, materialId, updates) => {
-  const course = await Course.findById(courseId);
-  if (!course) throw new Error('Course not found');
-
-  if (user.role !== 'admin' && course.instructor.toString() !== user.id) {
-    throw new Error('Not authorized to update materials in this course');
-  }
-
-  const material = course.materials.id(materialId);
-  if (!material) throw new Error('Material not found');
-
-  Object.keys(updates).forEach(key => {
-    if (updates[key] !== undefined) {
-      material[key] = updates[key];
-    }
-  });
-
-  await course.save();
-  return material;
-};
-
-exports.deleteMaterial = async (user, courseId, materialId) => {
-  const course = await Course.findById(courseId);
-  if (!course) throw new Error('Course not found');
-
-  if (user.role !== 'admin' && course.instructor.toString() !== user.id) {
-    throw new Error('Not authorized to delete materials from this course');
-  }
-
-  const material = course.materials.id(materialId);
-  if (!material) throw new Error('Material not found');
-
-  course.materials.pull(materialId);
-  await course.save();
-};
-
 exports.approveCourse = async (id) => {
   return Course.findByIdAndUpdate(id, { isApproved: true }, { new: true })
     .populate('instructor', 'firstName lastName email');
@@ -141,6 +79,7 @@ exports.getPendingCourses = async () => {
     .sort({ createdAt: -1 });
 };
 
+// ✅ keep course performance untouched
 exports.getCoursePerformance = async (user, courseId) => {
   const Assignment = require('../assignments/Assignment');
   const Submission = require('../submissions/Submission');
@@ -170,7 +109,6 @@ exports.getCoursePerformance = async (user, courseId) => {
 
   const grades = await Grade.find({ course: courseId });
 
-  // Compute metrics
   let completionRate = 0;
   if (totalStudents > 0 && totalAssignments > 0) {
     const studentCompletions = {};

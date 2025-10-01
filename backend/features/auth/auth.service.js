@@ -88,6 +88,7 @@ exports.registerUser = async ({
 
 exports.loginUser = async (email, password) => {
   const user = await User.findOne({ email });
+  
   if (!user) {
     const error = new Error('Invalid credentials');
     error.statusCode = 400;

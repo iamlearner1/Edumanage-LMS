@@ -47,7 +47,6 @@ const courseSchema = new mongoose.Schema({
   category: {
     type: String,
     required: [true, 'Category is required'],
-    enum: ['Computer Science', 'Mathematics', 'Physics', 'Chemistry', 'Biology', 'English', 'History', 'Arts', 'Business', 'Other']
   },
   level: {
     type: String,
@@ -55,24 +54,6 @@ const courseSchema = new mongoose.Schema({
     enum: ['Beginner', 'Intermediate', 'Advanced']
   },
   prerequisites: [String],
-  materials: [{
-    title: String,
-    type: {
-      type: String,
-      enum: ['pdf', 'video', 'link', 'document', 'note']
-    },
-    url: String,
-    filename: String,
-    description: String,
-    isFree: {
-      type: Boolean,
-      default: false
-    },
-    uploadDate: {
-      type: Date,
-      default: Date.now
-    }
-  }],
   isActive: {
     type: Boolean,
     default: true
@@ -96,10 +77,8 @@ courseSchema.index({ category: 1 });
 courseSchema.index({ isActive: 1, isApproved: 1 });
 
 // Virtual for enrollment status
-courseSchema.virtual('isFullyEnrolled').get(function() {
+courseSchema.virtual('isFullyEnrolled').get(function () {
   return this.currentEnrollment >= this.maxStudents;
 });
-
-// Removed duration validation since we removed duration fields
 
 module.exports = mongoose.model('Course', courseSchema);
