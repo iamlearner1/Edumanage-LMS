@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
 import {
@@ -8,13 +8,13 @@ import {
   CalendarIcon,
   CurrencyDollarIcon,
   ClockIcon,
-  DocumentIcon,
   PencilIcon,
   TrashIcon,
-  CheckCircleIcon
+  CheckCircleIcon,
+  ListBulletIcon
 } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../Common/LoadingSpinner';
-import CourseContentViewer from './CourseContentViewer';
+import CourseContentDisplay from './CourseContentDisplay';
 import toast from 'react-hot-toast';
 
 const CourseDetail = () => {
@@ -26,20 +26,14 @@ const CourseDetail = () => {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrollmentLoading, setEnrollmentLoading] = useState(false);
 
-  useEffect(() => {
-    fetchCourseDetails();
-    if (user?.role === 'student') {
-      checkEnrollmentStatus();
-    }
-  }, [id, user]);
-
   const fetchCourseDetails = async () => {
+    setLoading(true);
     try {
-      const response = await axios.get(`/api/courses/${id}`);
+      const response = await axios.get(`/api/courses/${id}/details`);
       setCourse(response.data);
     } catch (error) {
-      console.error('Error fetching course:', error);
-      toast.error('Course not found');
+      console.error('Error fetching course details:', error);
+      toast.error('Could not load course details.');
       navigate('/courses');
     } finally {
       setLoading(false);
@@ -47,28 +41,40 @@ const CourseDetail = () => {
   };
 
   const checkEnrollmentStatus = async () => {
+    // This check should only run for students.
+    if (user?.role !== 'student') return;
     try {
       const response = await axios.get(`/api/enrollments/student/${user._id}`);
       const enrolled = response.data.some(enrollment =>
         enrollment.course._id === id && enrollment.status === 'enrolled'
       );
       setIsEnrolled(enrolled);
-    } catch (error) {
+    } catch (error)
+    {
       console.error('Error checking enrollment:', error);
     }
   };
 
+  useEffect(() => {
+    fetchCourseDetails();
+    if (user) { // Only check enrollment if a user is logged in
+      checkEnrollmentStatus();
+    }
+  }, [id, user]);
+
   const handleEnroll = async () => {
+    // Double-check role before attempting to enroll
+    if (user?.role !== 'student') {
+        toast.error("Only students can enroll in courses.");
+        return;
+    }
     try {
       setEnrollmentLoading(true);
-      console.log('Enrolling in course:', id); // Debug log
-      const response = await axios.post('/api/enrollments', { courseId: id });
-      console.log('Enrollment response:', response.data); // Debug log
+      await axios.post('/api/enrollments', { courseId: id });
       setIsEnrolled(true);
       toast.success('Successfully enrolled in course!');
-      fetchCourseDetails(); // Refresh to update enrollment count
+      fetchCourseDetails();
     } catch (error) {
-      console.error('Enrollment error:', error); // Debug log
       const message = error.response?.data?.message || 'Failed to enroll';
       toast.error(message);
     } finally {
@@ -78,10 +84,8 @@ const CourseDetail = () => {
 
   const handleUnenroll = async () => {
     try {
-      // Find enrollment ID and delete
       const enrollments = await axios.get(`/api/enrollments/student/${user._id}`);
       const enrollment = enrollments.data.find(e => e.course._id === id);
-
       if (enrollment) {
         await axios.delete(`/api/enrollments/${enrollment._id}`);
         setIsEnrolled(false);
@@ -97,7 +101,7 @@ const CourseDetail = () => {
     try {
       await axios.put(`/api/courses/${id}/approve`);
       toast.success('Course approved successfully!');
-      fetchCourseDetails(); // Refresh course data
+      fetchCourseDetails();
     } catch (error) {
       toast.error('Failed to approve course');
     }
@@ -115,8 +119,8 @@ const CourseDetail = () => {
     );
   }
 
-  const canEdit = user?.role === 'instructor' && course.instructor._id === user._id; // Removed admin from edit permissions
-  const canApprove = user?.role === 'admin'; // Separate permission for approval
+  const canEdit = user?.role === 'instructor' && course.instructor === user._id;
+  const canApprove = user?.role === 'admin';
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -133,73 +137,54 @@ const CourseDetail = () => {
                 <p className="text-lg text-gray-600">{course.courseCode}</p>
               </div>
             </div>
-
             <p className="text-gray-700 mb-6">{course.description}</p>
-
-            {/* Course Info Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
               <div className="flex items-center text-gray-600">
                 <UserIcon className="h-5 w-5 mr-3" />
-                <span>Instructor: {course.instructor.firstName} {course.instructor.lastName}</span>
+                <span>Instructor: {course.instructor?.firstName || 'N/A'} {course.instructor?.lastName}</span>
               </div>
-
               <div className="flex items-center text-gray-600">
                 <CalendarIcon className="h-5 w-5 mr-3" />
                 <span>{course.credits} Credits • {course.level}</span>
               </div>
-
               <div className="flex items-center text-gray-600">
                 <CurrencyDollarIcon className="h-5 w-5 mr-3" />
                 <span>${course.fees}</span>
               </div>
-
               <div className="flex items-center text-gray-600">
                 <ClockIcon className="h-5 w-5 mr-3" />
                 <span>{course.currentEnrollment}/{course.maxStudents} enrolled</span>
               </div>
             </div>
           </div>
-
-          {/* Action Buttons */}
-          <div className="mt-6 lg:mt-0 lg:ml-6 flex flex-col space-y-3">
+          <div className="mt-6 lg:mt-0 lg:ml-6 flex flex-col space-y-3 shrink-0">
             {canEdit && (
               <>
-                <button
-                  onClick={() => navigate(`/courses/${id}/edit`)}
-                  className="btn btn-secondary flex items-center justify-center"
-                >
+                <button onClick={() => navigate(`/courses/${id}/edit`)} className="btn btn-secondary flex items-center justify-center">
                   <PencilIcon className="h-5 w-5 mr-2" />
-                  Edit Course
+                  Edit Course Info
                 </button>
-                <button
-                  onClick={() => navigate(`/courses/${id}/materials`)}
-                  className="btn btn-primary flex items-center justify-center"
-                >
-                  <DocumentIcon className="h-5 w-5 mr-2" />
-                  Manage Materials
+                <Link to={`/courses/${id}/manage-content`} className="btn btn-primary flex items-center justify-center">
+                  <ListBulletIcon className="h-5 w-5 mr-2" />
+                  Manage Content
+                </Link>
+              </>
+            )}
+            {canApprove && (
+              <>
+                {!course.isApproved && (
+                  <button onClick={handleApproveCourse} className="btn btn-primary flex items-center justify-center">
+                    <CheckCircleIcon className="h-5 w-5 mr-2" />
+                    Approve Course
+                  </button>
+                )}
+                <button className="btn btn-danger flex items-center justify-center">
+                  <TrashIcon className="h-5 w-5 mr-2" />
+                  Deactivate Course
                 </button>
               </>
             )}
-
-            {canApprove && !course.isApproved && (
-              <button
-                onClick={handleApproveCourse}
-                className="btn btn-primary flex items-center justify-center"
-              >
-                <CheckCircleIcon className="h-5 w-5 mr-2" />
-                Approve Course
-              </button>
-            )}
-
-            {canApprove && (
-              <button
-                className="btn btn-danger flex items-center justify-center"
-              >
-                <TrashIcon className="h-5 w-5 mr-2" />
-                Deactivate Course
-              </button>
-            )}
-
+            {/* THIS ENTIRE BLOCK IS NOW CORRECTLY GUARDED FOR STUDENTS ONLY */}
             {user?.role === 'student' && (
               <>
                 {!isEnrolled ? (
@@ -213,10 +198,7 @@ const CourseDetail = () => {
                         course.currentEnrollment >= course.maxStudents ? 'Course Full' : 'Enroll Now'}
                   </button>
                 ) : (
-                  <button
-                    onClick={handleUnenroll}
-                    className="btn btn-danger"
-                  >
+                  <button onClick={handleUnenroll} className="btn btn-danger">
                     Unenroll
                   </button>
                 )}
@@ -226,13 +208,16 @@ const CourseDetail = () => {
         </div>
       </div>
 
-      {/* Course Materials - Now visible to all users */}
-      <CourseContentViewer
-        materials={course.materials || []}
+      {/* Course Curriculum */}
+      <CourseContentDisplay
+        modules={course.modules || []}
         isEnrolled={isEnrolled}
         canEdit={canEdit}
         onEnroll={handleEnroll}
         enrollmentLoading={enrollmentLoading}
+        courseApproved={course.isApproved}
+        // *** CHANGE: Pass the user's role to the child component ***
+        userRole={user?.role}
       />
 
       {/* Prerequisites */}
