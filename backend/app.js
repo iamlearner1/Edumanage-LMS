@@ -12,6 +12,8 @@ const uploads = require('./middleware/upload'); // Middleware for handling file 
 const authRoutes = require('./features/auth/auth.routes');
 const userRoutes = require('./features/user/user.routes');
 const courseRoutes = require('./features/course/course.routes');
+const moduleRoutes = require('./features/module/module.routes');   // ✅ Module routes
+const lectureRoutes = require('./features/lecture/lecture.routes'); 
 const enrollmentRoutes = require('./features/enrollment/enrollment.routes');
 const assignmentRoutes = require('./features/assignment/assignment.routes');
 const submissionRoutes = require('./features/submission/submission.routes');
@@ -43,6 +45,8 @@ app.use('/api/enrollments', enrollmentRoutes);
 app.use('/api/assignments', assignmentRoutes);
 app.use('/api/submissions', submissionRoutes);
 app.use('/api/attendance', attendanceRoutes);
+app.use('/api/modules', moduleRoutes);    
+app.use('/api/lectures', lectureRoutes);   
 app.use('/api/grades', gradeRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/notifications', notificationRoutes);
