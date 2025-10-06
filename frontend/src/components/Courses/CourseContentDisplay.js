@@ -5,18 +5,17 @@ import {
     LinkIcon,
     LockClosedIcon,
     ChevronDownIcon,
-    ClockIcon,
     AcademicCapIcon
 } from '@heroicons/react/24/outline';
 
 const CourseContentDisplay = ({
     modules,
     isEnrolled,
-    canEdit,
+    canEdit, // Represents if the user is the course owner/instructor
+    isAdmin, // Received from parent component
     onEnroll,
     enrollmentLoading,
     courseApproved,
-    // *** CHANGE: Accept userRole as a prop ***
     userRole
 }) => {
     const [openModule, setOpenModule] = useState(modules && modules.length > 0 ? modules[0]._id : null);
@@ -58,7 +57,8 @@ const CourseContentDisplay = ({
             <div className="space-y-3">
                 {modules.map((module, index) => {
                     const isOpen = openModule === module._id;
-                    const isModuleVisible = canEdit || module.isPublished;
+                    // A module is visible if the user is instructor, admin, or if it's published
+                    const isModuleVisible = canEdit || isAdmin || module.isPublished;
 
                     return (
                         <div key={module._id} className="border border-gray-200 rounded-lg overflow-hidden">
@@ -70,7 +70,10 @@ const CourseContentDisplay = ({
                                     </div>
                                     <div>
                                         <h3 className={`font-semibold ${isModuleVisible ? 'text-gray-800' : 'text-gray-500'}`}>{module.title}</h3>
-                                        {!isModuleVisible && canEdit && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Draft (Visible to you)</span>}
+                                        {/* Badge for instructor/admin to identify unpublished content */}
+                                        {!module.isPublished && (canEdit || isAdmin) && 
+                                            <span className="ml-2 text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Draft</span>
+                                        }
                                     </div>
                                 </div>
                                 <ChevronDownIcon className={`h-5 w-5 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
@@ -80,7 +83,8 @@ const CourseContentDisplay = ({
                                     <ul className="divide-y divide-gray-100">
                                         {(module.lectures || []).map((lecture) => {
                                             const Icon = getIconForType(lecture.contentType);
-                                            const canAccess = canEdit || (isEnrolled && module.isPublished && lecture.isPublished);
+                                            // Access is granted to instructor, admin, or enrolled students for published content
+                                            const canAccess = canEdit || isAdmin || (isEnrolled && module.isPublished && lecture.isPublished);
 
                                             return (
                                                 <li key={lecture._id} className={`p-4 transition-colors ${canAccess ? 'hover:bg-gray-50' : 'bg-gray-50'}`}>
@@ -89,7 +93,10 @@ const CourseContentDisplay = ({
                                                             <Icon className={`h-5 w-5 ${canAccess ? 'text-blue-600' : 'text-gray-400'}`} />
                                                             <div>
                                                                 <p className={`font-medium ${canAccess ? 'text-gray-900' : 'text-gray-500'}`}>{lecture.title}</p>
-                                                                {!canAccess && canEdit && !lecture.isPublished && <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Draft</span>}
+                                                                {/* Badge for instructor/admin to identify unpublished lectures */}
+                                                                {!lecture.isPublished && (canEdit || isAdmin) && 
+                                                                    <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded-full">Draft</span>
+                                                                }
                                                             </div>
                                                         </div>
                                                         <div className="ml-4">
@@ -111,10 +118,9 @@ const CourseContentDisplay = ({
                 })}
             </div>
             
-            {/* *** UPDATED LOGIC: CTA now checks if userRole is 'student' *** */}
             {userRole === 'student' && !isEnrolled && courseApproved && (
                 <div className="mt-6 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
-                    <div className="flex items-center justify-between">
+                   <div className="flex items-center justify-between">
                         <div>
                             <h3 className="text-lg font-semibold text-blue-900">Unlock Full Access</h3>
                             <p className="text-blue-700 mt-1">Enroll to access all {totalLectures} lectures and course materials.</p>

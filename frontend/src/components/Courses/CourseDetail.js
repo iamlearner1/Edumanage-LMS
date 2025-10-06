@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import axios from 'axios';
@@ -26,8 +26,7 @@ const CourseDetail = () => {
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrollmentLoading, setEnrollmentLoading] = useState(false);
 
-  const fetchCourseDetails = async () => {
-    setLoading(true);
+  const fetchCourseDetails = useCallback(async () => {
     try {
       const response = await axios.get(`/api/courses/${id}/details`);
       setCourse(response.data);
@@ -36,12 +35,11 @@ const CourseDetail = () => {
       toast.error('Could not load course details.');
       navigate('/courses');
     } finally {
-      setLoading(false);
+      if (loading) setLoading(false);
     }
-  };
+  }, [id, navigate, loading]);
 
-  const checkEnrollmentStatus = async () => {
-    // This check should only run for students.
+  const checkEnrollmentStatus = useCallback(async () => {
     if (user?.role !== 'student') return;
     try {
       const response = await axios.get(`/api/enrollments/student/${user._id}`);
@@ -49,21 +47,19 @@ const CourseDetail = () => {
         enrollment.course._id === id && enrollment.status === 'enrolled'
       );
       setIsEnrolled(enrolled);
-    } catch (error)
-    {
+    } catch (error) {
       console.error('Error checking enrollment:', error);
     }
-  };
-
+  }, [id, user]);
+  
   useEffect(() => {
     fetchCourseDetails();
-    if (user) { // Only check enrollment if a user is logged in
+    if (user) {
       checkEnrollmentStatus();
     }
-  }, [id, user]);
+  }, [user, fetchCourseDetails, checkEnrollmentStatus]);
 
   const handleEnroll = async () => {
-    // Double-check role before attempting to enroll
     if (user?.role !== 'student') {
         toast.error("Only students can enroll in courses.");
         return;
@@ -106,121 +102,116 @@ const CourseDetail = () => {
       toast.error('Failed to approve course');
     }
   };
-
-  if (loading) {
-    return <LoadingSpinner />;
+  
+  if (loading) { 
+    return <LoadingSpinner />; 
   }
 
-  if (!course) {
+  if (!course) { 
     return (
       <div className="text-center py-12">
         <h2 className="text-2xl font-bold text-gray-900">Course not found</h2>
       </div>
-    );
+    ); 
   }
 
+  // --- PERMISSION LOGIC ---
   const canEdit = user?.role === 'instructor' && course.instructor === user._id;
   const canApprove = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin';
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Course Header */}
       <div className="card">
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between">
-          <div className="flex-1">
-            <div className="flex items-center space-x-4 mb-4">
-              <div className="h-16 w-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <BookOpenIcon className="h-8 w-8 text-white" />
+           <div className="flex-1">
+             <div className="flex items-center space-x-4 mb-4">
+                <div className="h-16 w-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                  <BookOpenIcon className="h-8 w-8 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-900">{course.title}</h1>
+                  <p className="text-lg text-gray-600">{course.courseCode}</p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900">{course.title}</h1>
-                <p className="text-lg text-gray-600">{course.courseCode}</p>
+              <p className="text-gray-700 mb-6">{course.description}</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div className="flex items-center text-gray-600">
+                  <UserIcon className="h-5 w-5 mr-3" />
+                  <span>Instructor: {course.instructor?.firstName || 'N/A'} {course.instructor?.lastName}</span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <CalendarIcon className="h-5 w-5 mr-3" />
+                  <span>{course.credits} Credits • {course.level}</span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <CurrencyDollarIcon className="h-5 w-5 mr-3" />
+                  <span>${course.fees}</span>
+                </div>
+                <div className="flex items-center text-gray-600">
+                  <ClockIcon className="h-5 w-5 mr-3" />
+                  <span>{course.currentEnrollment}/{course.maxStudents} enrolled</span>
+                </div>
               </div>
-            </div>
-            <p className="text-gray-700 mb-6">{course.description}</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              <div className="flex items-center text-gray-600">
-                <UserIcon className="h-5 w-5 mr-3" />
-                <span>Instructor: {course.instructor?.firstName || 'N/A'} {course.instructor?.lastName}</span>
-              </div>
-              <div className="flex items-center text-gray-600">
-                <CalendarIcon className="h-5 w-5 mr-3" />
-                <span>{course.credits} Credits • {course.level}</span>
-              </div>
-              <div className="flex items-center text-gray-600">
-                <CurrencyDollarIcon className="h-5 w-5 mr-3" />
-                <span>${course.fees}</span>
-              </div>
-              <div className="flex items-center text-gray-600">
-                <ClockIcon className="h-5 w-5 mr-3" />
-                <span>{course.currentEnrollment}/{course.maxStudents} enrolled</span>
-              </div>
-            </div>
-          </div>
-          <div className="mt-6 lg:mt-0 lg:ml-6 flex flex-col space-y-3 shrink-0">
+           </div>
+           <div className="mt-6 lg:mt-0 lg:ml-6 flex flex-col space-y-3 shrink-0">
+            {/* Instructor Buttons */}
             {canEdit && (
-              <>
-                <button onClick={() => navigate(`/courses/${id}/edit`)} className="btn btn-secondary flex items-center justify-center">
-                  <PencilIcon className="h-5 w-5 mr-2" />
-                  Edit Course Info
-                </button>
-                <Link to={`/courses/${id}/manage-content`} className="btn btn-primary flex items-center justify-center">
-                  <ListBulletIcon className="h-5 w-5 mr-2" />
-                  Manage Content
-                </Link>
-              </>
+                <>
+                    <button onClick={() => navigate(`/courses/${id}/edit`)} className="btn btn-secondary flex items-center justify-center">
+                        <PencilIcon className="h-5 w-5 mr-2" /> Edit Course Info
+                    </button>
+                    <Link to={`/courses/${id}/manage-content`} className="btn btn-primary flex items-center justify-center">
+                        <ListBulletIcon className="h-5 w-5 mr-2" /> Manage Content
+                    </Link>
+                </>
             )}
+            {/* Admin Buttons */}
             {canApprove && (
-              <>
-                {!course.isApproved && (
-                  <button onClick={handleApproveCourse} className="btn btn-primary flex items-center justify-center">
-                    <CheckCircleIcon className="h-5 w-5 mr-2" />
-                    Approve Course
-                  </button>
-                )}
-                <button className="btn btn-danger flex items-center justify-center">
-                  <TrashIcon className="h-5 w-5 mr-2" />
-                  Deactivate Course
-                </button>
-              </>
+                <>
+                    {!course.isApproved && (
+                        <button onClick={handleApproveCourse} className="btn btn-primary flex items-center justify-center">
+                            <CheckCircleIcon className="h-5 w-5 mr-2" /> Approve Course
+                        </button>
+                    )}
+                    <button className="btn btn-danger flex items-center justify-center">
+                        <TrashIcon className="h-5 w-5 mr-2" /> Deactivate Course
+                    </button>
+                </>
             )}
-            {/* THIS ENTIRE BLOCK IS NOW CORRECTLY GUARDED FOR STUDENTS ONLY */}
+            {/* Student Buttons */}
             {user?.role === 'student' && (
-              <>
-                {!isEnrolled ? (
-                  <button
-                    onClick={handleEnroll}
-                    disabled={enrollmentLoading || course.currentEnrollment >= course.maxStudents || !course.isApproved}
-                    className="btn btn-primary disabled:opacity-50"
-                  >
-                    {enrollmentLoading ? 'Enrolling...' :
-                      !course.isApproved ? 'Pending Approval' :
-                        course.currentEnrollment >= course.maxStudents ? 'Course Full' : 'Enroll Now'}
-                  </button>
-                ) : (
-                  <button onClick={handleUnenroll} className="btn btn-danger">
-                    Unenroll
-                  </button>
-                )}
-              </>
+                 <>
+                    {!isEnrolled ? (
+                        <button
+                            onClick={handleEnroll}
+                            disabled={enrollmentLoading || course.currentEnrollment >= course.maxStudents || !course.isApproved}
+                            className="btn btn-primary disabled:opacity-50"
+                        >
+                          {enrollmentLoading ? 'Enrolling...' :
+                            !course.isApproved ? 'Pending Approval' :
+                              course.currentEnrollment >= course.maxStudents ? 'Course Full' : 'Enroll Now'}
+                        </button>
+                    ) : (
+                        <button onClick={handleUnenroll} className="btn btn-danger">Unenroll</button>
+                    )}
+                </>
             )}
-          </div>
+           </div>
         </div>
       </div>
 
-      {/* Course Curriculum */}
       <CourseContentDisplay
         modules={course.modules || []}
         isEnrolled={isEnrolled}
         canEdit={canEdit}
+        isAdmin={isAdmin} 
         onEnroll={handleEnroll}
         enrollmentLoading={enrollmentLoading}
         courseApproved={course.isApproved}
-        // *** CHANGE: Pass the user's role to the child component ***
         userRole={user?.role}
       />
 
-      {/* Prerequisites */}
       {course.prerequisites?.length > 0 && (
         <div className="card">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Prerequisites</h2>

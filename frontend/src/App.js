@@ -14,10 +14,13 @@ import StudentDashboard from './components/Dashboard/StudentDashboard';
 import InstructorDashboard from './components/Dashboard/InstructorDashboard';
 import AdminDashboard from './components/Dashboard/AdminDashboard';
 
+// --- IMPORT THE NEW COMPONENT ---
+import ManageCourseContent from './components/Courses/ManageCourseContent';
+
 // Feature Components
 import CourseList from './components/Courses/CourseList';
 import CourseDetail from './components/Courses/CourseDetail';
-import CourseMaterials from './components/Courses/CourseMaterials';
+// import CourseMaterials from './components/Courses/CourseMaterials'; // This is now replaced
 import CreateCourse from './components/Courses/CreateCourse';
 import CoursePerformance from './components/Courses/CoursePerformance';
 import MyEnrollments from './components/Enrollments/MyEnrollments';
@@ -48,16 +51,13 @@ function App() {
     if (!user) {
       return <Navigate to="/login" replace />;
     }
-
     if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
       return <Navigate to="/dashboard" replace />;
     }
-
     return children;
   };
 
   const PublicRoute = ({ children }) => {
-    // Prevent update loop: only redirect if not loading and user exists
     if (!loading && user) {
       return <Navigate to="/dashboard" replace />;
     }
@@ -83,50 +83,29 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<HomePage />} />
-          <Route path="/login" element={
-            <PublicRoute>
-              <PublicLayout>
-                <Login />
-              </PublicLayout>
-            </PublicRoute>
-          } />
-          <Route path="/register" element={
-            <PublicRoute>
-              <PublicLayout>
-                <Register />
-              </PublicLayout>
-            </PublicRoute>
-          } />
+          <Route path="/login" element={<PublicRoute><PublicLayout><Login /></PublicLayout></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><PublicLayout><Register /></PublicLayout></PublicRoute>} />
 
           {/* Protected Routes */}
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <Layout>
-                {getDashboard()}
-              </Layout>
-            </ProtectedRoute>
-          } />
+          <Route path="/dashboard" element={<ProtectedRoute><Layout>{getDashboard()}</Layout></ProtectedRoute>} />
+          <Route path="/courses" element={<ProtectedRoute><Layout><CourseList /></Layout></ProtectedRoute>} />
+          <Route path="/courses/:id" element={<ProtectedRoute><Layout><CourseDetail /></Layout></ProtectedRoute>} />
 
-          <Route path="/courses" element={
-            <ProtectedRoute>
-              <Layout>
-                <CourseList />
-              </Layout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/courses/:id" element={
-            <ProtectedRoute>
-              <Layout>
-                <CourseDetail />
-              </Layout>
-            </ProtectedRoute>
-          } />
-
+          {/* --- REMOVE THIS OLD ROUTE ---
           <Route path="/courses/:id/materials" element={
             <ProtectedRoute allowedRoles={['instructor', 'admin']}>
               <Layout>
                 <CourseMaterials />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          */}
+
+          {/* --- ADD THIS NEW ROUTE --- */}
+          <Route path="/courses/:id/manage-content" element={
+            <ProtectedRoute allowedRoles={['instructor']}>
+              <Layout>
+                <ManageCourseContent />
               </Layout>
             </ProtectedRoute>
           } />
@@ -140,121 +119,32 @@ function App() {
           } />
 
           <Route path="/create-course" element={
-            <ProtectedRoute allowedRoles={['instructor']}> {/* Removed admin */}
+            <ProtectedRoute allowedRoles={['instructor']}>
               <Layout>
                 <CreateCourse />
               </Layout>
             </ProtectedRoute>
           } />
 
-          <Route path="/my-courses" element={
-            <ProtectedRoute allowedRoles={['student']}>
-              <Layout>
-                <MyEnrollments />
-              </Layout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/assignments" element={
-            <ProtectedRoute>
-              <Layout>
-                <AssignmentList />
-              </Layout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/assignments/:id" element={
-            <ProtectedRoute>
-              <Layout>
-                <AssignmentDetail />
-              </Layout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/assignments/:id/submissions" element={
-            <ProtectedRoute allowedRoles={['instructor', 'admin']}>
-              <Layout>
-                <AssignmentSubmissions />
-              </Layout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/create-assignment" element={
-            <ProtectedRoute allowedRoles={['instructor']}> {/* Removed admin */}
-              <Layout>
-                <CreateAssignment />
-              </Layout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/attendance" element={
-            <ProtectedRoute>
-              <Layout>
-                <AttendanceView />
-              </Layout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/grades" element={
-            <ProtectedRoute>
-              <Layout>
-                <GradeView />
-              </Layout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/messages" element={
-            <ProtectedRoute>
-              <Layout>
-                <Messages />
-              </Layout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/profile" element={
-            <ProtectedRoute>
-              <Layout>
-                <Profile />
-              </Layout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/admin/users" element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <Layout>
-                <UserManagement />
-              </Layout>
-            </ProtectedRoute>
-          } />
-
-          <Route path="/upload-documents" element={
-            <ProtectedRoute allowedRoles={['instructor']}>
-              <DocumentUpload />
-            </ProtectedRoute>
-          } />
-
-          <Route path="/admin/instructor-verification" element={
-            <ProtectedRoute allowedRoles={['admin']}>
-              <Layout>
-                <InstructorVerification />
-              </Layout>
-            </ProtectedRoute>
-          } />
+          {/* ... (rest of your routes remain the same) ... */}
+          <Route path="/my-courses" element={<ProtectedRoute allowedRoles={['student']}><Layout><MyEnrollments /></Layout></ProtectedRoute>} />
+          <Route path="/assignments" element={<ProtectedRoute><Layout><AssignmentList /></Layout></ProtectedRoute>} />
+          <Route path="/assignments/:id" element={<ProtectedRoute><Layout><AssignmentDetail /></Layout></ProtectedRoute>} />
+          <Route path="/assignments/:id/submissions" element={<ProtectedRoute allowedRoles={['instructor', 'admin']}><Layout><AssignmentSubmissions /></Layout></ProtectedRoute>} />
+          <Route path="/create-assignment" element={<ProtectedRoute allowedRoles={['instructor']}><Layout><CreateAssignment /></Layout></ProtectedRoute>} />
+          <Route path="/attendance" element={<ProtectedRoute><Layout><AttendanceView /></Layout></ProtectedRoute>} />
+          <Route path="/grades" element={<ProtectedRoute><Layout><GradeView /></Layout></ProtectedRoute>} />
+          <Route path="/messages" element={<ProtectedRoute><Layout><Messages /></Layout></ProtectedRoute>} />
+          <Route path="/profile" element={<ProtectedRoute><Layout><Profile /></Layout></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute allowedRoles={['admin']}><Layout><UserManagement /></Layout></ProtectedRoute>} />
+          <Route path="/upload-documents" element={<ProtectedRoute allowedRoles={['instructor']}><DocumentUpload /></ProtectedRoute>} />
+          <Route path="/admin/instructor-verification" element={<ProtectedRoute allowedRoles={['admin']}><Layout><InstructorVerification /></Layout></ProtectedRoute>} />
 
           {/* Default Route */}
-          <Route path="/" element={
-            user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
-          } />
+          <Route path="/" element={user ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />} />
 
           {/* 404 Route */}
-          <Route path="*" element={
-            <div className="min-h-screen flex items-center justify-center">
-              <div className="text-center">
-                <h1 className="text-4xl font-bold text-gray-900">404</h1>
-                <p className="text-gray-600 mt-2">Page not found</p>
-              </div>
-            </div>
-          } />
+          <Route path="*" element={<div className="min-h-screen flex items-center justify-center"><div className="text-center"><h1 className="text-4xl font-bold text-gray-900">404</h1><p className="text-gray-600 mt-2">Page not found</p></div></div>} />
         </Routes>
       </div>
     </Router>
