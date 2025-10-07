@@ -16,7 +16,7 @@ import AdminDashboard from './components/Dashboard/AdminDashboard';
 
 // --- IMPORT THE NEW COMPONENT ---
 import ManageCourseContent from './components/Courses/ManageCourseContent';
-
+import EditCourse from './components/Courses/EditCourse'; //
 // Feature Components
 import CourseList from './components/Courses/CourseList';
 import CourseDetail from './components/Courses/CourseDetail';
@@ -102,6 +102,15 @@ function App() {
           */}
 
           {/* --- ADD THIS NEW ROUTE --- */}
+
+            <Route path="/courses/:id/edit" element={
+            <ProtectedRoute allowedRoles={['instructor']}>
+              <Layout>
+                <EditCourse />
+              </Layout>
+            </ProtectedRoute>
+          } />
+          
           <Route path="/courses/:id/manage-content" element={
             <ProtectedRoute allowedRoles={['instructor']}>
               <Layout>
