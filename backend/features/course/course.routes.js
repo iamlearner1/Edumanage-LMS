@@ -19,6 +19,13 @@ router.post(
   courseController.createCourse
 );
 
+router.get(
+  "/:id/details",
+  auth, // all authenticated roles
+  courseValidator.getCourseDetailsValidator,
+  courseController.getCourseDetails
+);
+
 // Instructor's own courses (based on logged-in user)
 router.get(
   '/instructor/my-courses',

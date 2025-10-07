@@ -1,6 +1,6 @@
 const Course = require('./Course');
 const Enrollment = require('../enrollment/Enrollment');
-
+const mongoose = require("mongoose")
 exports.getCourses = async (query) => {
   const page = parseInt(query.page) || 1;
   const limit = parseInt(query.limit) || 10;
@@ -180,4 +180,54 @@ exports.getCoursePerformance = async (user, courseId) => {
       'F': grades.filter(g => g.letterGrade === 'F').length
     }
   };
+};
+
+
+exports.getCourseWithModulesAndLectures = async (courseId) => {
+  const course = await Course.aggregate([
+    { $match: { _id: new mongoose.Types.ObjectId(courseId) } },
+    {
+      $lookup: {
+        from: "modules",
+        localField: "_id",
+        foreignField: "courseId",
+        as: "modules"
+      }
+    },
+    {
+      $lookup: {
+        from: "lectures",
+        localField: "modules._id",
+        foreignField: "moduleId",
+        as: "lectures"
+      }
+    },
+    {
+      $addFields: {
+        modules: {
+          $map: {
+            input: "$modules",
+            as: "m",
+            in: {
+              $mergeObjects: [
+                "$$m",
+                {
+                  lectures: {
+                    $filter: {
+                      input: "$lectures",
+                      as: "l",
+                      cond: { $eq: ["$$l.moduleId", "$$m._id"] }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        }
+      }
+    },
+    { $project: { lectures: 0 } } // remove flat lectures array
+  ]);
+
+  return course[0] || null;
 };

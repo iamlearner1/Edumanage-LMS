@@ -1,4 +1,4 @@
-const { body, query } = require('express-validator');
+const { body, query,param } = require('express-validator');
 
 exports.getCoursesValidator = [
   query('page').optional().isInt({ min: 1 }).withMessage('Page must be a positive integer'),
@@ -17,4 +17,10 @@ exports.createCourseValidator = [
   body('fees').isFloat({ min: 0 }).withMessage('Fees must be a positive number'),
   body('category').notEmpty().withMessage('Category is required'),
   body('level').isIn(['Beginner', 'Intermediate', 'Advanced']).withMessage('Invalid level')
+];
+
+exports.getCourseDetailsValidator = [
+  param("id")
+    .isMongoId()
+    .withMessage("Valid courseId is required")
 ];

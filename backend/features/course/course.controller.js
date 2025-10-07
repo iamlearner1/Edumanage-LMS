@@ -71,3 +71,19 @@ exports.getCoursePerformance = async (req, res) => {
     res.status(500).json({ message: error.message || 'Server error while fetching course performance' });
   }
 };
+
+
+exports.getCourseDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const course = await courseService.getCourseWithModulesAndLectures(id);
+
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+
+    res.json(course);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
