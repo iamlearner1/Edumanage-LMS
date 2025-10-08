@@ -38,7 +38,7 @@ router.post(
   lectureController.updateLecture
 );
 
-// Delete lecture (POST style delete as per your standards)
+// Delete lecture
 router.post(
   '/:id/delete',
   auth,

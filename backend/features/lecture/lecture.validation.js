@@ -12,9 +12,10 @@ exports.createLectureValidator = [
   body('description').optional().trim(),
   body('moduleId').notEmpty().withMessage('Module ID is required').isMongoId().withMessage('Module ID must be valid'),
   body('order').isInt({ min: 1 }).withMessage('Order must be a positive integer'),
-  body('contentType').isIn(['video', 'document', 'link']).withMessage('Invalid content type'),
-  body('contentUrl').trim().notEmpty().withMessage('Content URL is required'),
-  body('duration').optional().isInt({ min: 0 }).withMessage('Duration must be a non-negative integer'),
+  body('resources').isArray({ min: 1 }).withMessage('Resources must be a non-empty array'),
+  body('resources.*.type').isIn(['video', 'document', 'link']).withMessage('Invalid resource type'),
+  body('resources.*.url').notEmpty().withMessage('Resource URL is required'),
+  body('resources.*.duration').optional().isInt({ min: 0 }).withMessage('Duration must be a non-negative integer'),
   body('isPublished').optional().isBoolean().withMessage('isPublished must be true or false')
 ];
 
@@ -22,9 +23,10 @@ exports.updateLectureValidator = [
   body('title').optional().trim().notEmpty().withMessage('Lecture title cannot be empty'),
   body('description').optional().trim(),
   body('order').optional().isInt({ min: 1 }).withMessage('Order must be a positive integer'),
-  body('contentType').optional().isIn(['video', 'document', 'link']).withMessage('Invalid content type'),
-  body('contentUrl').optional().trim().notEmpty().withMessage('Content URL cannot be empty'),
-  body('duration').optional().isInt({ min: 0 }).withMessage('Duration must be a non-negative integer'),
+  body('resources').optional().isArray().withMessage('Resources must be an array'),
+  body('resources.*.type').optional().isIn(['video', 'document', 'link']).withMessage('Invalid resource type'),
+  body('resources.*.url').optional().notEmpty().withMessage('Resource URL cannot be empty'),
+  body('resources.*.duration').optional().isInt({ min: 0 }).withMessage('Duration must be a non-negative integer'),
   body('isPublished').optional().isBoolean().withMessage('isPublished must be true or false')
 ];
 
