@@ -25,6 +25,7 @@ const CourseDetail = () => {
   const [loading, setLoading] = useState(true);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [enrollmentLoading, setEnrollmentLoading] = useState(false);
+  const [instructorName, setInstructorName] = useState('Loading...');
 
   const fetchCourseDetails = useCallback(async () => {
     try {
@@ -43,9 +44,7 @@ const CourseDetail = () => {
     if (user?.role !== 'student') return;
     try {
       const response = await axios.get(`/api/enrollments/student/${user._id}`);
-      const enrolled = response.data.some(enrollment =>
-        enrollment.course._id === id && enrollment.status === 'enrolled'
-      );
+      const enrolled = response.data.some(e => e.course._id === id && e.status === 'enrolled');
       setIsEnrolled(enrolled);
     } catch (error) {
       console.error('Error checking enrollment:', error);
@@ -59,13 +58,29 @@ const CourseDetail = () => {
     }
   }, [user, fetchCourseDetails, checkEnrollmentStatus]);
 
+  useEffect(() => {
+    const fetchInstructorName = async () => {
+      if (course && course.instructor) {
+        try {
+          const response = await axios.get(`/api/users/${course.instructor}`);
+          const instructor = response.data;
+          setInstructorName(`${instructor.firstName} ${instructor.lastName}`);
+        } catch (error) {
+          console.error("Failed to fetch instructor name", error);
+          setInstructorName("Unknown Instructor");
+        }
+      }
+    };
+    fetchInstructorName();
+  }, [course]);
+
   const handleEnroll = async () => {
     if (user?.role !== 'student') {
         toast.error("Only students can enroll in courses.");
         return;
     }
+    setEnrollmentLoading(true);
     try {
-      setEnrollmentLoading(true);
       await axios.post('/api/enrollments', { courseId: id });
       setIsEnrolled(true);
       toast.success('Successfully enrolled in course!');
@@ -103,22 +118,12 @@ const CourseDetail = () => {
     }
   };
   
-  if (loading) { 
-    return <LoadingSpinner />; 
-  }
+  if (loading) { return <LoadingSpinner />; }
+  if (!course) { return <div className="text-center py-12"><h2>Course not found</h2></div>; }
 
-  if (!course) { 
-    return (
-      <div className="text-center py-12">
-        <h2 className="text-2xl font-bold text-gray-900">Course not found</h2>
-      </div>
-    ); 
-  }
-
-  // --- PERMISSION LOGIC ---
-  const canEdit = user?.role === 'instructor' && course.instructor === user._id;
-  const canApprove = user?.role === 'admin';
+  const canEdit = user?.role === 'instructor' && String(course.instructor) === String(user._id);
   const isAdmin = user?.role === 'admin';
+  const canApprove = user?.role === 'admin';
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -138,7 +143,7 @@ const CourseDetail = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                 <div className="flex items-center text-gray-600">
                   <UserIcon className="h-5 w-5 mr-3" />
-                  <span>Instructor: {course.instructor?.firstName || 'N/A'} {course.instructor?.lastName}</span>
+                  <span>Instructor: {instructorName}</span>
                 </div>
                 <div className="flex items-center text-gray-600">
                   <CalendarIcon className="h-5 w-5 mr-3" />
@@ -155,18 +160,16 @@ const CourseDetail = () => {
               </div>
            </div>
            <div className="mt-6 lg:mt-0 lg:ml-6 flex flex-col space-y-3 shrink-0">
-            {/* Instructor Buttons */}
             {canEdit && (
                 <>
-                    <button onClick={() => navigate(`/courses/${id}/edit`)} className="btn btn-secondary flex items-center justify-center">
+                    <Link to={`/courses/${id}/edit`} className="btn btn-secondary flex items-center justify-center">
                         <PencilIcon className="h-5 w-5 mr-2" /> Edit Course Info
-                    </button>
+                    </Link>
                     <Link to={`/courses/${id}/manage-content`} className="btn btn-primary flex items-center justify-center">
                         <ListBulletIcon className="h-5 w-5 mr-2" /> Manage Content
                     </Link>
                 </>
             )}
-            {/* Admin Buttons */}
             {canApprove && (
                 <>
                     {!course.isApproved && (
@@ -179,18 +182,11 @@ const CourseDetail = () => {
                     </button>
                 </>
             )}
-            {/* Student Buttons */}
             {user?.role === 'student' && (
                  <>
                     {!isEnrolled ? (
-                        <button
-                            onClick={handleEnroll}
-                            disabled={enrollmentLoading || course.currentEnrollment >= course.maxStudents || !course.isApproved}
-                            className="btn btn-primary disabled:opacity-50"
-                        >
-                          {enrollmentLoading ? 'Enrolling...' :
-                            !course.isApproved ? 'Pending Approval' :
-                              course.currentEnrollment >= course.maxStudents ? 'Course Full' : 'Enroll Now'}
+                        <button onClick={handleEnroll} disabled={enrollmentLoading || course.currentEnrollment >= course.maxStudents || !course.isApproved} className="btn btn-primary disabled:opacity-50">
+                            {enrollmentLoading ? 'Enrolling...' : !course.isApproved ? 'Pending Approval' : course.currentEnrollment >= course.maxStudents ? 'Course Full' : 'Enroll Now'}
                         </button>
                     ) : (
                         <button onClick={handleUnenroll} className="btn btn-danger">Unenroll</button>
@@ -200,18 +196,7 @@ const CourseDetail = () => {
            </div>
         </div>
       </div>
-
-      <CourseContentDisplay
-        modules={course.modules || []}
-        isEnrolled={isEnrolled}
-        canEdit={canEdit}
-        isAdmin={isAdmin} 
-        onEnroll={handleEnroll}
-        enrollmentLoading={enrollmentLoading}
-        courseApproved={course.isApproved}
-        userRole={user?.role}
-      />
-
+      <CourseContentDisplay courseId={course._id} modules={course.modules || []} isEnrolled={isEnrolled} canEdit={canEdit} isAdmin={isAdmin} onEnroll={handleEnroll} enrollmentLoading={enrollmentLoading} courseApproved={course.isApproved} userRole={user?.role} />
       {course.prerequisites?.length > 0 && (
         <div className="card">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">Prerequisites</h2>
